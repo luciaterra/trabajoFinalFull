@@ -7,16 +7,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const showCompletedBtn = document.getElementById('show-completed');
 
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let currentFilter = 'all'; // 'all', 'pending', 'completed'
-
-    // Function to save tasks to local storage
+    let currentFilter = 'all'; 
     const saveTasks = () => {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     };
 
-    // Function to render tasks based on the current filter
     const renderTasks = () => {
-        taskList.innerHTML = ''; // Clear current list
+        taskList.innerHTML = ''; 
 
         const filteredTasks = tasks.filter(task => {
             if (currentFilter === 'pending') {
@@ -24,12 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentFilter === 'completed') {
                 return task.completed;
             }
-            return true; // Show all
+            return true; 
         });
 
         if (filteredTasks.length === 0 && tasks.length > 0) {
-            // If no tasks match the filter, but there are tasks in total,
-            // inform the user.
             const noTasksMessage = document.createElement('li');
             noTasksMessage.textContent = `No hay tareas ${currentFilter === 'pending' ? 'pendientes' : 'completadas'} en este momento.`;
             noTasksMessage.style.textAlign = 'center';
@@ -50,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         filteredTasks.forEach(task => {
             const listItem = document.createElement('li');
-            listItem.dataset.id = task.id; // Store ID for easy reference
+            listItem.dataset.id = task.id; 
 
             if (task.completed) {
                 listItem.classList.add('completed');
@@ -70,7 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFilterButtons();
     };
 
-    // Function to update active filter button
     const updateFilterButtons = () => {
         showAllBtn.classList.remove('active');
         showPendingBtn.classList.remove('active');
@@ -86,87 +80,75 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
 
-    // Add new task
     taskForm.addEventListener('submit', (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault(); 
         const text = newTaskInput.value.trim();
         if (text) {
             const newTask = {
-                id: Date.now(), // Unique ID
+                id: Date.now(), 
                 text,
                 completed: false
             };
             tasks.push(newTask);
             saveTasks();
-            newTaskInput.value = ''; // Clear input
+            newTaskInput.value = ''; 
             renderTasks();
         }
     });
 
-    // Handle task actions (complete, edit, delete)
     taskList.addEventListener('click', (e) => {
         const listItem = e.target.closest('li');
-        if (!listItem) return; // Click was not on a list item
+        if (!listItem) return; 
 
         const taskId = parseInt(listItem.dataset.id);
         const taskIndex = tasks.findIndex(task => task.id === taskId);
 
         if (e.target.type === 'checkbox') {
-            // Toggle completed status
             tasks[taskIndex].completed = e.target.checked;
             saveTasks();
-            renderTasks(); // Re-render to apply 'completed' class
+            renderTasks(); 
         } else if (e.target.classList.contains('delete-btn')) {
-            // Delete task
             tasks.splice(taskIndex, 1);
             saveTasks();
             renderTasks();
         } else if (e.target.classList.contains('edit-btn')) {
-            // Edit task
             const taskSpan = listItem.querySelector('span');
             const originalText = taskSpan.textContent;
 
-            // Create an input field for editing
             const editInput = document.createElement('input');
             editInput.type = 'text';
             editInput.value = originalText;
-            listItem.insertBefore(editInput, taskSpan); // Insert before the span
-            taskSpan.style.display = 'none'; // Hide the span
+            listItem.insertBefore(editInput, taskSpan); 
+            taskSpan.style.display = 'none'; 
 
-            listItem.classList.add('editing'); // Add class for styling
+            listItem.classList.add('editing'); 
 
-            // Create a save button
             const saveButton = document.createElement('button');
             saveButton.textContent = 'Guardar';
             saveButton.classList.add('save-btn');
             listItem.querySelector('.task-actions').appendChild(saveButton);
 
-            editInput.focus(); // Focus the input field
+            editInput.focus(); 
 
-            // Handle saving the edited task
             saveButton.addEventListener('click', () => {
                 const newText = editInput.value.trim();
                 if (newText && newText !== originalText) {
                     tasks[taskIndex].text = newText;
                     saveTasks();
                 }
-                // Revert to display mode
                 listItem.removeChild(editInput);
                 listItem.classList.remove('editing');
                 taskSpan.style.display = 'inline-block';
-                taskSpan.textContent = newText; // Update span text
-                saveButton.remove(); // Remove save button
-                renderTasks(); // Re-render to ensure state is consistent
-            }, { once: true }); // Ensure this listener only runs once
-
-            // Allow saving on Enter key press
+                taskSpan.textContent = newText; 
+                saveButton.remove(); 
+                renderTasks(); 
+            }, { once: true }); 
             editInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
-                    saveButton.click(); // Programmatically click the save button
+                    saveButton.click(); 
                 }
             });
 
-            // If the user clicks outside the input while editing, save the changes
             editInput.addEventListener('blur', () => {
                 if (listItem.classList.contains('editing') && saveButton.parentNode) {
                     saveButton.click();
@@ -176,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Filter buttons event listeners
     showAllBtn.addEventListener('click', () => {
         currentFilter = 'all';
         renderTasks();
@@ -192,6 +173,5 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTasks();
     });
 
-    // Initial render when the page loads
     renderTasks();
 });
