@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <div class="container">
+        <h1>
+             <img src="imagenes/rosa1.jpg" alt="Logo" class="logo">
+            Mi Lista de Tareas</h1>
+<div id="hora-container">
+    <p id="hora-argentina">Cargando hora de Argentina...</p>
+</div>
+
+<div id="gif-container">
+    <img src="https://media2.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NzI2NDV4bDU0bjA4OGd0dzU2ampibzJjbG1meDhnNDNnNmFieTJnciZlcD12MV9naWZzX3NlYXJjaCZjdD1n/ZXlROzEKfixQaAjLBA/200.webp" alt="GIF decorativo" id="gif-decorativo">
+</div>
+
+        <form id="task-form">
+            <input type="text" id="task-name" placeholder="Nombre de la tarea" required>
+            <input type="text" id="task-description" placeholder="Descripción de la tarea" required>
+            <button type="submit">Agregar Tarea</button>
+        </form>
+
+        <div class="filter-buttons">
+            <button id="show-all">Todas</button>
+            <button id="show-pending">Pendientes</button>
+            <button id="show-completed">Completadas</button>
+        </div>
+
+        <ul id="task-list">
+            </ul>
+    </div>
+
+    <script src="script.js"></script>
+
+    <script>
+    function actualizarHora() {
+        fetch('http://worldtimeapi.org/api/timezone/America/Argentina/Buenos_Aires')
+            .then(response => response.json())
+            .then(data => {
+                const hora = new Date(data.datetime).toLocaleTimeString('es-AR');
+                document.getElementById('hora-argentina').textContent = `Hora Argentina: ${hora}`;
+            })
+            .catch(err => {
+                document.getElementById('hora-argentina').textContent = "No se pudo cargar la hora.";
+                console.error('Error al obtener la hora:', err);
+            });
+    }
+
+    actualizarHora(); // primera carga
+    setInterval(actualizarHora, 1000); // actualiza cada segundo
+</script>
+
+</body>
+</html>
