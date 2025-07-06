@@ -1,19 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
     const taskForm = document.getElementById('task-form');
-    const newTaskInput = document.getElementById('new-task-input');
+    // Obtener AMBOS campos de entrada
+    const taskNameInput = document.getElementById('task-name');
+    const taskDescriptionInput = document.getElementById('task-description');
+
     const taskList = document.getElementById('task-list');
     const showAllBtn = document.getElementById('show-all');
     const showPendingBtn = document.getElementById('show-pending');
     const showCompletedBtn = document.getElementById('show-completed');
 
     let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    let currentFilter = 'all'; 
+    let currentFilter = 'all';
+
     const saveTasks = () => {
         localStorage.setItem('tasks', JSON.stringify(tasks));
     };
 
     const renderTasks = () => {
-        taskList.innerHTML = ''; 
+        taskList.innerHTML = '';
 
         const filteredTasks = tasks.filter(task => {
             if (currentFilter === 'pending') {
@@ -21,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentFilter === 'completed') {
                 return task.completed;
             }
-            return true; 
+            return true;
         });
 
         if (filteredTasks.length === 0 && tasks.length > 0) {
@@ -42,10 +46,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-
         filteredTasks.forEach(task => {
             const listItem = document.createElement('li');
-            listItem.dataset.id = task.id; 
+            listItem.dataset.id = task.id;
 
             if (task.completed) {
                 listItem.classList.add('completed');
@@ -79,26 +82,31 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
     taskForm.addEventListener('submit', (e) => {
-        e.preventDefault(); 
-        const text = newTaskInput.value.trim();
-        if (text) {
+        e.preventDefault();
+        // Obtener los valores de AMBOS campos
+        const name = taskNameInput.value.trim();
+        const description = taskDescriptionInput.value.trim();
+
+        if (name) { // Asegúrate de que el nombre de la tarea no esté vacío
+            // Combina el nombre y la descripción para formar el texto de la tarea
+            const text = description ? `${name}: ${description}` : name;
             const newTask = {
-                id: Date.now(), 
+                id: Date.now(),
                 text,
                 completed: false
             };
             tasks.push(newTask);
             saveTasks();
-            newTaskInput.value = ''; 
+            taskNameInput.value = ''; // Limpiar el campo de nombre
+            taskDescriptionInput.value = ''; // Limpiar el campo de descripción
             renderTasks();
         }
     });
 
     taskList.addEventListener('click', (e) => {
         const listItem = e.target.closest('li');
-        if (!listItem) return; 
+        if (!listItem) return;
 
         const taskId = parseInt(listItem.dataset.id);
         const taskIndex = tasks.findIndex(task => task.id === taskId);
@@ -106,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.type === 'checkbox') {
             tasks[taskIndex].completed = e.target.checked;
             saveTasks();
-            renderTasks(); 
+            renderTasks();
         } else if (e.target.classList.contains('delete-btn')) {
             tasks.splice(taskIndex, 1);
             saveTasks();
@@ -118,17 +126,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const editInput = document.createElement('input');
             editInput.type = 'text';
             editInput.value = originalText;
-            listItem.insertBefore(editInput, taskSpan); 
-            taskSpan.style.display = 'none'; 
+            listItem.insertBefore(editInput, taskSpan);
+            taskSpan.style.display = 'none';
 
-            listItem.classList.add('editing'); 
+            listItem.classList.add('editing');
 
             const saveButton = document.createElement('button');
             saveButton.textContent = 'Guardar';
             saveButton.classList.add('save-btn');
             listItem.querySelector('.task-actions').appendChild(saveButton);
 
-            editInput.focus(); 
+            editInput.focus();
 
             saveButton.addEventListener('click', () => {
                 const newText = editInput.value.trim();
@@ -139,13 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 listItem.removeChild(editInput);
                 listItem.classList.remove('editing');
                 taskSpan.style.display = 'inline-block';
-                taskSpan.textContent = newText; 
-                saveButton.remove(); 
-                renderTasks(); 
-            }, { once: true }); 
+                taskSpan.textContent = newText;
+                saveButton.remove();
+                renderTasks();
+            }, { once: true });
             editInput.addEventListener('keypress', (event) => {
                 if (event.key === 'Enter') {
-                    saveButton.click(); 
+                    saveButton.click();
                 }
             });
 
@@ -154,7 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     saveButton.click();
                 }
             });
-
         }
     });
 
